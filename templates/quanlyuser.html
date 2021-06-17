@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>User Management</title>
+    <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='css/bootstrap.css') }}">
+{#    <script src="{{url_for('.static', filename='js/bootstrap.js')}}"></script>#}
+
+</head>
+<body>
+    <div class="container">
+      <div class="jumbotron">
+        <h1>Định giá xe hơi Miền Tây</h1>
+        <p>Định giá xe hơi xe ôtô giá cao nhất và bán giá thấp nhất thị trường</p>
+      </div>
+    </div>
+
+    <div class="container-fluid">
+        {% if error_code == 1 %}
+            <div class="alert alert-primary" role="alert">
+                Không dược dùng Tiếng Việt làm Username
+            </div>
+        {% elif error_code == 2 %}
+            <div class="alert alert-primary" role="alert">
+                Không dược dùng khoảng trắng trong Username
+            </div>
+        {% elif error_code == 3 %}
+            <div class="alert alert-primary" role="alert">
+                Có lỗi xảy ra trong quá trình thêm mới
+            </div>
+        {% elif error_code == -1 %}
+           {{ pass }}
+        {% endif %}
+
+        <form action="{{ url_for('process_user_add') }}" method="post">
+            <div class="form-floating mb-3">
+                <input name="user_name" type="text" class="form-control" id="floatingInput" placeholder="Username" required>
+                <label for="floatingInput">Username</label>
+            </div>
+            <div class="form-floating">
+                <input name="user_password"  type="password" class="form-control" id="floatingPassword" placeholder="Password" minlength="8" maxlength="20" required>
+                <label for="floatingPassword">Password</label>
+                <small id="passwordHelpInline" class="text-muted">Must be 8-20 characters long.</small>
+            </div>
+            <button type="submit" class="btn btn-primary">Submit</button>
+        </form>
+    </div>
+
+</body>
+</html>
