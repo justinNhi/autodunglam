@@ -18,8 +18,8 @@ USER_LOG = Base.classes.USER_LOG
 # USER_WEB_FUNCTION = Base.classes.USER_WEB_FUNCTION
 USER_USER_GROUP_RELATIONSHIP = Base.classes.USER_USER_GROUP_RELATIONSHIP
 USER_GROUP = Base.classes.USER_GROUP
-# USER_GROUP_USER_MODULE_RELATIONSHIP =  Base.classes.USER_GROUP_USER_MODULE_RELATIONSHIP
-# USER_MODULE = Base.classes.USER_MODULE
+USER_GROUP_USER_MODULE_RELATIONSHIP = getattr(Base.classes, 'USER_GROUP_USER_MODULE_RELATIONSHIP')
+USER_MODULE = Base.classes.USER_MODULE
 # USER_MODULE_FUNCTION_RELATIONSHIP = Base.classes.USER_MODULE_FUNCTION_RELATIONSHIP
 # FUNCTION = Base.classes.FUNCTION
 #
@@ -47,6 +47,15 @@ def get_max_id(TABLE_NAME):
 
 
 # user
+def user_update(user_name, user_password):
+    session_sql = SessionSql()
+    password = bytes(str(user_password), "utf-8")
+    json_update = {}
+    json_update['USER_PASSWORD'] = cast(password, VARBINARY(100))
+    rs = session_sql.query(USER).filter(USER.USER_NAME == user_name).update(json_update)
+    print(rs)
+    session_sql.commit()
+    session_sql.close()
 
 def user_add(guest_id=None, user_name=None, user_password=None, user_token=None,
              create_user_id=None, user_status=None):
@@ -95,6 +104,8 @@ def user_login(user_name, user_password, key, ip_user, browser_name):
                 'USER_ID' : str(getattr(rs_login.all()[0], 'USER_ID')),
                 'USER_GROUP_ID': str(getattr(rs_user_group.all()[0][0], 'USER_GROUP_ID')),
                 'USER_GROUP_NAME': getattr(rs_user_group.all()[0][0], 'USER_GROUP_NAME'),
+                "USER_IP_ADDRESS": ip_user,
+                "USER_USED_BROWSER": browser_name,
                 'TIME_OUT': date_timeout
             }
             token = jwt.encode(
@@ -109,7 +120,8 @@ def user_login(user_name, user_password, key, ip_user, browser_name):
                     "USER_ID": str(getattr(rs_login.all()[0], 'USER_ID')),
                     "USER_IP_ADDRESS": ip_user,
                     "USER_USED_BROWSER": browser_name,
-                    "USER_LAST_LOGIN": datetime.today()
+                    "USER_LAST_LOGIN": datetime.today(),
+                    "USER_ACTION": 'home_login'
                 }
                 user_log_add(json_log)
             except:
@@ -134,3 +146,40 @@ def user_log_add(json_log):
     except:
         pass
     session_sql.close()
+
+def user_group_module(user_group_id):
+    session_sql = SessionSql()
+    data = []
+    # try:
+    rs_module = session_sql.query(USER_MODULE, USER_GROUP_USER_MODULE_RELATIONSHIP) \
+        .filter(USER_GROUP_USER_MODULE_RELATIONSHIP.USER_MODULE_ID == USER_MODULE.USER_MODULE_ID,
+                USER_GROUP_USER_MODULE_RELATIONSHIP.USER_GROUP_ID == user_group_id)
+    if len(rs_module.all()) > 0:
+        for a, b in rs_module.all():
+            row_data = {}
+            row_data['USER_MODULE_NAME'] = getattr(a, 'USER_MODULE_NAME')
+            row_data['USER_MODULE_URL'] = getattr(a, 'USER_MODULE_URL')
+            data.append(row_data)
+
+
+    # except:
+    #     pass
+    session_sql.close()
+    return data
+
+def process_token_user_log(token, key, action):
+    de_token = jwt.decode(token, key, 'HS256')
+    try:
+        json_log = {
+            "USER_NAME": de_token['USER_NAME'],
+            "USER_ID":de_token['USER_ID'],
+            "USER_IP_ADDRESS": de_token['USER_IP_ADDRESS'],
+            "USER_USED_BROWSER": de_token['USER_USED_BROWSER'],
+            "USER_LAST_LOGIN": datetime.today(),
+            "USER_ACTION": action
+        }
+        user_log_add(json_log)
+    except:
+        pass
+
+

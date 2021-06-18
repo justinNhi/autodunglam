@@ -1,17 +1,37 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+{#    <link rel="icon" href="{{ url_for('icon', filename= 'volang.png') }} ">#}
+    <link rel="shortcut icon" href="{{ url_for('static', filename='icon/volang.png') }}">
+{#    <link rel="shortcut icon" href="../icon/volang.png">#}
     <meta charset="UTF-8">
-    <title>Xem sản phẩm Admin</title>
+    <title>Trình quản lý</title>
     <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='css/bootstrap.css') }}">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <!-- Google Font: Source Sans Pro -->
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Source+Sans+Pro:300,400,400i,700&display=fallback">
+    <link rel="stylesheet" href="{{ url_for('static', filename='plugins/fontawesome-free/css/all.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='dist/css/adminlte.css') }}">
 
 </head>
 <body>
     <div class="container">
-        <div class="col-sm">One of three columns</div>
-        <div class="col-sm">One of three columns</div>
-        <div class="col-sm">One of three columns</div>
+        <div class="card">
+            <div class="container p-3 mb-2 bg-success text-white">
+                <h3 style="text-align: center">Phần mềm quản lý Auto Dũng Lâm</h3>
+            </div>
+            <div class="card-body table-responsive pad">
+                <table class="table table-bordered">
+                    <div class="btn-group-vertical">
+                        {% for row in session['module'] %}
+                            <form action="{{ url_for(row['USER_MODULE_URL']) }}" method="post">
+                                <button  type="submit" class="btn btn-block btn-success btn-lg">{{ row['USER_MODULE_NAME'] }}</button>
+                            </form>
+                        {% endfor %}
+                    </div>
+                </table>
+            </div>
+        </div>
     </div>
 </body>
 </html>
