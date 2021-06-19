@@ -32,6 +32,9 @@
                         <table id="example1" class="table table-bordered table-striped">
                             <thead>
                                 {% for row in data_name %}
+                                    <div class="form-group">
+                                        <input name="" type="text" class="form-control" id="floatingInput" placeholder="Mã xe" required>
+                                    </div>
                                 <tr>
                                     <th>{{ row }}</th>
                                     <td>{{ data[0][row] }}</td>
